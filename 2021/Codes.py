@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import copy
 
 ############## DAY 1 ##############
 
@@ -130,4 +131,72 @@ def D3_2(L):
 
     return(O2,NO2,"\n",CO2,NCO2,"\n",NO2*NCO2)
 
-print(D3_2(L3))
+#print(D3_2(L3))
+
+################# DAY 4 #######################
+File4 = "InputD4.txt"
+f4 = open(File4,"r")
+S4 = f4.read().split("\n")
+L4_nb = S4[0].split(",")
+for i in range(len(L4_nb)):
+    L4_nb[i] = int(L4_nb[i])
+#print(L4_nb)
+L4_mtrx = []
+for i in range(1,len(S4)):
+    if S4[i] != "":
+        mtrx_line=[]
+        for n in S4[i].split(" "):
+            if n != "":
+                mtrx_line.append(int(n))
+        L4_mtrx[len(L4_mtrx) - 1].append(mtrx_line)
+    else:
+        L4_mtrx.append([])
+#print(L4_mtrx[0])
+
+def Check_bingo(Checked):
+    for n in range(len(Checked)):
+        for j in range(len(Checked[n][0])):
+            Check = True
+            for i in range(len(Checked[n])):
+                if not(False in Checked[n][i]):
+                    return(True,n)
+                if Checked[n][i][j] and Check:
+                    if i == len(Checked[n])-1:
+                        return(True,n)
+                else:
+                    Check = False
+    return (False,None)
+#print(Check_bingo([[[True,False,False,False,False],[False,False,False,False,False],[True,False,False,False,False],[True,False,False,False,False],[True,False,False,False,False]]]))
+
+def D4_1(L_mtrx, L_nb):
+    Checked = []
+    for i in L_mtrx:
+        Checked.append([])
+        for j in L_mtrx[0]:
+            Checked[len(Checked)-1].append([False] * len(L_mtrx[0][0]))
+    for nb in L_nb:
+        for n in range(len(L_mtrx)):
+            for i in range(len(L_mtrx[n])):
+                for j in range(len(L_mtrx[n][i])):
+                    if not(Checked[n][i][j]) and L_mtrx[n][i][j] == nb:
+                        Checked[n][i][j] = True
+        Check = Check_bingo(Checked)
+        if Check[0]:
+            mtrx = L_mtrx[Check[1]]
+            sum = 0
+            for i in range(len(mtrx)):
+                for j in range(len(mtrx[i])):
+                    if not(Checked[Check[1]][i][j]):
+                        sum += mtrx[i][j]
+            return(sum, nb, sum * nb, mtrx)
+    return('no bingo winner')
+
+def D4_2(L_mtrx,L_nb):
+    notWinned = copy.deepcopy(L_mtrx)
+    while len(notWinned) > 1:
+        notWinned.remove(D4_1(notWinned,L_nb)[3])
+        if [] in notWinned:
+            notWinned.remove([])
+    return (D4_1(notWinned,L_nb))
+
+print(D4_2(L4_mtrx,L4_nb))
