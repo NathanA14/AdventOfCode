@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import copy
+import numpy as np
 
 ############## DAY 1 ##############
 
@@ -199,4 +200,164 @@ def D4_2(L_mtrx,L_nb):
             notWinned.remove([])
     return (D4_1(notWinned,L_nb))
 
-print(D4_2(L4_mtrx,L4_nb))
+#print(D4_2(L4_mtrx,L4_nb))
+
+############### DAY 5 ################@@
+
+File5 = "InputD5.txt"
+#File5="test.txt"
+f5 = open(File5,"r")
+S5 = f5.read().split("\n")
+L5 = []
+for line in S5:
+    if line == "":
+        break
+    s = line.split(" -> ")
+    L5.append([])
+    for nb in s:
+        nb = nb.split(",")
+        L5[len(L5)-1].append( ( int(nb[0]), int(nb[1]) ) )
+
+def visualise(L):
+    s=""
+    for line in L:
+        for n in line:
+            if n == 0:
+                s+="."
+            else:
+                s+=str(n)
+        s+="\n"
+    return s
+
+
+def D5_12(L):
+    overlap = []
+    if File5 == "test.txt" : N = 10
+    else : N = 1000
+    for i in range(N):
+        overlap.append([0] * N)
+    for line in L:
+        if line[0][0] == line[1][0]:
+            jmin = min(line[0][1], line[1][1])
+            jmax = max(line[0][1], line[1][1])
+            i = line[0][0]
+            for j in range(jmin, jmax + 1):
+                overlap[j][i] += 1
+        elif line[0][1] == line[1][1]:
+            imin = min(line[0][0], line[1][0])
+            imax = max(line[0][0], line[1][0])
+            j = line[1][1]
+            for i in range(imin, imax + 1):
+                overlap[j][i] += 1
+        else:
+            x = line[0][0]
+            y = line[0][1]
+            compare = line[1][0] + 1
+            while x != compare:
+                overlap[y][x] += 1
+                if line[0][0] < line[1][0]:
+                    x+=1
+                    compare = line[1][0] + 1
+                else:
+                    x-=1
+                    compare = line[1][0] - 1
+                if line[0][1] < line[1][1]:
+                    y+=1
+                else:
+                    y-=1
+        #print(line)
+        #print(visualise(overlap))
+
+    c = 0
+    for line in overlap:
+        for nb in line:
+            if nb > 1:
+                c+=1
+    #print(visualise(overlap))
+    return c
+
+#print(D5_12(L5))
+
+
+############## DAY 6 ##############
+File6 = "InputD6.txt"
+# File6="test.txt"
+f6 = open(File6,"r")
+S6 = f6.read().split(",")
+L6 = []
+for s in S6:
+    L6.append(int(s))
+
+def D6_1(Fishs, Days):
+    for d in range(Days):
+        print(d)
+        for i in range(len(Fishs)):
+            if Fishs[i] == 0:
+                Fishs.append(8)
+                Fishs[i] = 6
+            else:
+                Fishs[i] -= 1
+        #print(Fishs)
+    return len(Fishs)
+
+def D6_2(Fishs,Days):
+    maxDays = 9
+    L = [0] * maxDays
+    for i in range(len(Fishs)):
+        L[Fishs[i]] += 1
+    for day in range(Days):
+        L[(7 + day) % maxDays] += L[day % maxDays]
+
+    # for i in range(len(Fishs)):
+    #     Fishs[i] = ( Fishs[i] + Days%7 - 1) % 7
+    return (L,sum(L))
+
+#print(D6_2(L6,256))
+
+################### DAY 7 #################
+
+File7 = "InputD7.txt"
+# File7="test.txt"
+f7 = open(File7,"r")
+S7 = f7.read().split(",")
+L7 = []
+for s in S7:
+    L7.append(int(s))
+
+def D7_1(L):
+    L.sort()
+    if len(L) < 1:
+        return None
+    if len(L) % 2 == 0 :
+        M = L[(len(L) // 2 ) + 1 - 1]
+    else:
+        M = L[(len(L)-1)//2 - 1]
+
+    sum = 0
+    for n in L:
+        sum += abs(M - n)
+    return sum
+
+def D7_2(L):
+    Avrg1 = int(sum(L)/len(L) - 0.5)
+    Avrg2 = int(sum(L)/len(L) + 0.5)
+
+    Sum1 = 0
+    Sum2 = 0
+    for n in L:
+        N1 = abs(Avrg1 - n)
+        N2 = abs(Avrg2 - n)
+        Sum1 += ( N1 * (N1+1) ) // 2
+        Sum2 += ( N2 * (N2+1) ) // 2
+
+    return min(Sum1,Sum2)
+
+
+
+
+
+
+
+
+
+print(D7_2(L7))
