@@ -351,13 +351,218 @@ def D7_2(L):
         Sum2 += ( N2 * (N2+1) ) // 2
 
     return min(Sum1,Sum2)
+# print(D7_2(L7))
+
+####################### DAY 8 ##################
+File8 = "InputD8.txt"
+# File8="test.txt"
+f8 = open(File8,"r")
+S8 = f8.read().split("\n")
+L8 = []
+for entry in S8:
+    if entry != "":
+        L8.append(["",""])
+        line = entry.split("|")
+        L8[len(L8) - 1][0] = line[0].split(" ")
+        L8[len(L8) - 1][1] = line[1].split(" ")
+while L8.count("") > 0:
+    L8.remove("")
+for line in L8:
+    while line[0].count("") > 0:
+        line[0].remove("")
+    while line[1].count("") > 0:
+        line[1].remove("")
+
+def Check1478(digit):
+    if len(digit) == 2 or len(digit) == 3 or len(digit) == 4 or len(digit) == 7:
+        return True
+    return False
+
+def DecodeOutput(line):
+    code = line[0][:]
+    D = {}
+    order = [""]*7 # haut, hautGauche, hautDroite, milieu, bas gauche, bas droite, bas
+
+    #Etape 1
+    x0 = ""
+    x2x5 = ""
+    x1x3 =""
+    x4x6 = ""
+    while x0 == "":
+        for digit in code:
+            if len(digit) == 3:
+                Num = digit
+            elif len(digit) == 2:
+                Den = digit
+        for i in Num:
+            if not(i in Den):
+                x0 = i
+                order[0] = i
+            else:
+                x2x5 += i
+    while x1x3 == "":
+        for digit in code:
+            if len(digit) == 4:
+                for i in digit:
+                    if not(i in x2x5):
+                        x1x3 += i
+    while x4x6 == "":
+        for digit in code:
+            if len(digit) == 7:
+                for i in digit:
+                    if not(i in x2x5 or i in x0 or i in x1x3):
+                        x4x6 += i
+    #Etape 2
+    x2x3x4=""
+    les3_6=[]
+    while x2x3x4 == "":
+        for digit in code:
+            if len(digit) == 6:
+                les3_6.append(digit)
+        for i in "abcdefg":
+            if not(i in les3_6[0] and i in les3_6[1] and i in les3_6[2]):
+                x2x3x4 += i
+
+    for i in x2x3x4:
+        if i in x2x5:
+            order[2] = i
+            order[5] = x2x5[x2x5.index(i) - 1] #if is 1=> 0, if is 0=>-1
+        elif i in x1x3:
+            order[3] = i
+            order[1] = x1x3[x1x3.index(i) - 1]
+        elif i in x4x6:
+            order[4] = i
+            order[6] = x4x6[x4x6.index(i) - 1]
+    return order
 
 
 
 
+def D8_1(L):
+    c = 0
+    for line in L:
+        output = line[1]
+        for digit in output:
+            if Check1478(digit):
+                c += 1
+    return c
+
+def D8_2(L):
+    c = 0
+    Numbers = []
+    for line in L:
+        decode = DecodeOutput(line)
+        Nb = [
+        "".join(sorted(decode[0]+decode[1]+decode[2]+decode[4]+decode[5]+decode[6])),
+        "".join(sorted(decode[2]+decode[5])),
+        "".join(sorted(decode[0]+decode[2]+decode[3]+decode[4]+decode[6])),
+        "".join(sorted(decode[0]+decode[2]+decode[3]+decode[5]+decode[6])),
+        "".join(sorted(decode[1]+decode[2]+decode[3]+decode[5])),
+        "".join(sorted(decode[0]+decode[1]+decode[3]+decode[5]+decode[6])),
+        "".join(sorted(decode[0]+decode[1]+decode[3]+decode[4]+decode[5]+decode[6])),
+        "".join(sorted(decode[0]+decode[2]+decode[5])),
+        "".join(sorted(decode[0]+decode[1]+decode[2]+decode[3]+decode[4]+decode[5]+decode[6])),
+        "".join(sorted(decode[0]+decode[1]+decode[2]+decode[3]+decode[5]+decode[6]))]
+        output = line[1]
+        for i in range(len(output)):
+            output[i] = "".join(sorted(output[i]))
+        Code = {}
+        for digit in line[0]:
+            for i in range(len(Nb)):
+                if Nb[i] == "".join(sorted(digit)):
+                    Code["".join(sorted(digit))] = i
+        Numbers.append(int(str(Code[output[0]])+str(Code[output[1]])+str(Code[output[2]])+str(Code[output[3]])))
+
+    return sum(Numbers)
+
+# print(D8_2(L8))
 
 
+############## DAY 9 #################
 
+File9 = "InputD9.txt"
+# File9="test.txt"
+f9 = open(File9,"r")
+S9 = f9.read().split("\n")
+L9 = []
+for line in S9:
+    L9.append([])
+    for i in line:
+        L9[len(L9)-1].append(int(i))
+while [] in L9:
+    L9.remove([])
 
+def TestNeighbors(L,i,j):
+    if L[i][j] == 9:
+        return 0
+    elif L[i][j] == 0:
+        return 1
+    elif i!=len(L)-1 and i!=0:
+        if j != len(L[0]) - 1 and j != 0 and L[i-1][j] > L[i][j] and L[i+1][j] > L[i][j] and L[i][j-1] > L[i][j] and L[i][j+1] > L[i][j]:
+                return(L[i][j] + 1)
+        elif j == len(L[0]) - 1 and L[i-1][j] > L[i][j] and L[i+1][j] > L[i][j] and L[i][j-1] > L[i][j]:
+            return (L[i][j] + 1)
+        elif j == 0 and L[i-1][j] > L[i][j] and L[i+1][j] > L[i][j] and L[i][j+1] > L[i][j]:
+            return(L[i][j] + 1)
+    elif i == len(L) - 1:
+        if j != len(L[0]) - 1 and j != 0 and L[i-1][j] > L[i][j] and L[i][j-1] > L[i][j] and L[i][j+1] > L[i][j]:
+            return(L[i][j] + 1)
+        elif j == len(L[0]) - 1 and L[i-1][j] > L[i][j] and L[i][j-1] > L[i][j]:
+            return(L[i][j]+1)
+        elif j == 0 and L[i-1][j] > L[i][j] and L[i][j+1] > L[i][j]:
+            return(L[i][j]+1)
+    elif i == 0:
+        if j != len(L[0]) - 1 and j != 0 and L[i+1][j] > L[i][j] and L[i][j-1] > L[i][j] and L[i][j+1] > L[i][j]:
+            return(L[i][j] + 1)
+        elif j == len(L[0]) - 1 and L[i+1][j] > L[i][j] and L[i][j-1] > L[i][j]:
+            return(L[i][j]+1)
+        elif j == 0 and L[i+1][j] > L[i][j] and L[i][j+1] > L[i][j]:
+            return(L[i][j]+1)
+    return 0
 
-print(D7_2(L7))
+def D9_1(L):
+    c = 0
+    for i in range(len(L)):
+        for j in range(len(L[i])):
+            c += TestNeighbors(L,i,j)
+    return c
+
+def D9_2(L):
+    basins = []
+    for i in range(len(L)):
+        basins.append([False]*len(L[0]))
+    Added = copy.deepcopy(basins)
+    for i in range(len(L)):
+        for j in range(len(L[0])):
+            if not(L[i][j] == 9):
+                basins[i][j] = True
+    AdjPos=[(0,0),(0,-1),(-1,0),(0,1),(1,0)]
+    NbBasins = []
+    for i in range(len(basins)):
+        for j in range(len(basins[i])):
+            ToTrack=[]
+            if basins[i][j] and not(Added[i][j]):
+                NbBasins.append(0)
+                ToTrack = [(i,j)]
+            while len(ToTrack)>0:
+                # print(ToTrack)
+                Tracking = ToTrack[len(ToTrack)-1]
+                for pos in AdjPos:
+                    try:
+                        TrackAfter = tuple(np.add(Tracking,pos))
+                        if -1 not in TrackAfter and not(Added[TrackAfter[0]][TrackAfter[1]]) and basins[TrackAfter[0]][TrackAfter[1]]:
+                            ToTrack.append(TrackAfter)
+                    except:
+                        pass
+                if not(Added[Tracking[0]][Tracking[1]]):
+                    NbBasins[len(NbBasins)-1] += 1
+                    Added[Tracking[0]][Tracking[1]] = True
+                ToTrack.remove(Tracking)
+    Maxis_3 = []
+    while len(Maxis_3) !=3:
+        M = max(NbBasins)
+        Maxis_3.append(M)
+        NbBasins.remove(M)
+    return(Maxis_3[0]*Maxis_3[1]*Maxis_3[2])
+
+print(D9_2(L9))
