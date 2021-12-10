@@ -565,4 +565,58 @@ def D9_2(L):
         NbBasins.remove(M)
     return(Maxis_3[0]*Maxis_3[1]*Maxis_3[2])
 
-print(D9_2(L9))
+# print(D9_2(L9))
+
+################# DAY 10 ############
+
+File10 = "InputD10.txt"
+# File10="test.txt"
+f10 = open(File10,"r")
+S10 = f10.read()
+L10 = S10.split("\n")
+
+def CheckLine(line):
+    opened = []
+    C_dict = {')' : 3, ']' : 57, '}' : 1197, '>' : 25137}
+    Chunk_dict = {'(' : ')', '[' : ']', '{' : '}', '<' : '>'}
+    for s in line:
+        if s in "({[<":
+            opened.append(s)
+        elif s != Chunk_dict[opened[len(opened)-1]]:
+            return C_dict[s]
+            break
+        else:
+            opened = opened[:len(opened)-1]
+    return opened
+
+def D10_1(L):
+    c = 0
+    for line in L:
+        try:
+            c += CheckLine(line)
+        except:
+            pass
+    return c
+
+def D10_2(L):
+    Scores = [0]
+    Scores_dict = {'(' : 1, '[' : 2, '{' : 3, '<' : 4}
+    for line in L:
+        s_added = ""
+        opened = CheckLine(line)
+        if Scores[-1] != 0:
+            Scores.append(0)
+        if type(opened) == int :
+            # print(opened)
+            pass
+        else :
+            s_added += "".join(opened)
+            #print(s_added)
+            for s in s_added[::-1]:
+                Scores[-1] *= 5
+                Scores[-1] += Scores_dict[s]
+    if 0 in Scores:
+        Scores.remove(0)
+    return sorted(Scores)[len(Scores) // 2]
+
+print(D10_2(L10))
